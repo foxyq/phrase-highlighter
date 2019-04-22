@@ -1,0 +1,52 @@
+body {
+  font-size: calc(10px + 2vmin);
+}
+
+.App {
+  text-align: center;
+  /* background-color: #282c34; */
+  background-color: #ffffff;
+  color: rgb(94, 92, 92);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  font-size: calc(10px + 2vmin);
+  /* color: white; */
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+input[type='submit'] {
+  border: none;
+  background-color: #45b5e6;
+  color: #fff;
+  padding: 15px;
+  font-size: calc(10px + 2vmin);
+  border-radius: 5px;
+}
+
+.highlight {
+  position: relative;
+  border-radius: 5px;
+}
+
+.join-right {
+  border-radius: 5px 0 0 5px;
+  padding-right: 5px;
+  margin-right: -5px;
+}
+
+.join-left {
+  border-radius: 0 5px 5px 0;
+  padding-left: 5px;
+  margin-left: -5px;
+}
+
+/* .App-link {
+  color: #61dafb;
+} */
