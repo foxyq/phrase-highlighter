@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DynamicContent component renders no props correctly 1`] = `null`;
+
+exports[`DynamicContent component renders props correctly 1`] = `"abc"`;

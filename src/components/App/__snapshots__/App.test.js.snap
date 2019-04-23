@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App component matches snapshot 1`] = `
+<div
+  className="App"
+>
+  <section>
+    <form
+      className="form"
+      onSubmit={[Function]}
+    >
+      <label
+        htmlFor="text"
+      >
+        Sentence or a paragraph to be highlighted
+      </label>
+      <br />
+      <textarea
+        cols="70"
+        name="text"
+        placeholder="You will deliver new technology with an adorable puppy. Perfect!"
+        rows="3"
+      />
+      <label
+        htmlFor="highlights"
+      >
+        Array of highlights objects
+      </label>
+      <br />
+      <textarea
+        cols="70"
+        name="highlights"
+        placeholder="[{\\"startOffset\\":4,\\"endOffset\\":31,\\"color\\":\\"#d9f593\\",\\"priority\\":2},{\\"startOffset\\":1,\\"endOffset\\":9,\\"color\\":\\"pink\\",\\"priority\\":0},{\\"startOffset\\":17,\\"endOffset\\":20,\\"color\\":\\"#a8a8a8\\",\\"priority\\":0},{\\"startOffset\\":37,\\"endOffset\\":55,\\"color\\":\\"orange\\",\\"priority\\":1},{\\"startOffset\\":40,\\"endOffset\\":48,\\"color\\":\\"limegreen\\",\\"priority\\":0},{\\"startOffset\\":55,\\"endOffset\\":64,\\"color\\":\\"yellow\\",\\"priority\\":1}]"
+        rows="10"
+      />
+      <pre
+        name="example"
+      >
+        [{startOffset: 4, endOffset: 31, color: '#d9f593', priority: 2}]
+      </pre>
+      <input
+        type="submit"
+        value="Submit"
+      />
+    </form>
+  </section>
+  <section>
+    
+  </section>
+</div>
+`;

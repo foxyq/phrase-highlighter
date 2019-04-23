@@ -1,7 +1,7 @@
 import React from 'react';
 
 const DynamicContent = props => {
-  return <div>{props.children}</div>;
+  return <>{props.children}</>;
 };
 
 export default DynamicContent;

@@ -8,17 +8,18 @@ const initState = {
       priority: 2
     },
     {
+      startOffset: 1,
+      endOffset: 9,
+      color: 'pink',
+      priority: 0
+    },
+    {
       startOffset: 17,
       endOffset: 20,
       color: '#a8a8a8',
       priority: 0
     },
-    {
-      startOffset: 0,
-      endOffset: 9,
-      color: 'pink',
-      priority: 0
-    },
+
     {
       startOffset: 37,
       endOffset: 55,
@@ -32,12 +33,14 @@ const initState = {
       priority: 0
     },
     {
-      startOffset: 56,
+      startOffset: 55,
       endOffset: 64,
       color: 'yellow',
-      priority: 0
+      priority: 1
     }
-  ]
+  ],
+
+  toDisplay: ''
 };
 
 export default initState;

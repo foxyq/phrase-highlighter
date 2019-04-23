@@ -21,18 +21,23 @@ body {
   flex-direction: column;
 }
 
+textarea {
+  font-size: 0.7em;
+}
+
 input[type='submit'] {
   border: none;
   background-color: #45b5e6;
-  color: #fff;
-  padding: 15px;
-  font-size: calc(10px + 2vmin);
   border-radius: 5px;
+  color: #fff;
+  font-size: calc(10px + 2vmin);
+  padding: 15px;
 }
 
 .highlight {
   position: relative;
   border-radius: 5px;
+  border: 1px solid #fff;
 }
 
 .join-right {
@@ -42,11 +47,6 @@ input[type='submit'] {
 }
 
 .join-left {
-  border-radius: 0 5px 5px 0;
   padding-left: 5px;
   margin-left: -5px;
 }
-
-/* .App-link {
-  color: #61dafb;
-} */
