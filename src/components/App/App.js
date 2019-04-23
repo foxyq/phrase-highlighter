@@ -27,9 +27,7 @@ class App extends Component {
       ? this.state.highlights
       : rawHighlights;
 
-    // format highlights
     const newHighlights = formatHighlights(formHighlights);
-
     var reactElementDiv = createHighlightedElements(newHighlights, formText);
 
     this.setState({
