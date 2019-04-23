@@ -3,13 +3,14 @@ import DynamicContent from '../components/DynamicContent/';
 
 const parseStringData = require('parse-string-data');
 
-export const inputIsEmpty = input => input === null || input === '';
+export const inputIsEmpty = input =>
+  input === null || input === '' || input.length === 0;
 
-export const overlapCoords = (block1, block2) => {
+export const hasOverlap = (block1, block2) => {
   const start = Math.max(block1.startOffset, block2.startOffset);
   const end = Math.min(block1.endOffset, block2.endOffset);
 
-  return start < end ? [start, end] : null;
+  return start < end;
 };
 
 export const firstHasPriority = (first, second) => {
@@ -23,40 +24,45 @@ export const secondIsInsideFirst = (first, second) =>
 export const formatHighlights = highlights => {
   let data = [];
 
+  if (typeof highlights === 'number') return [];
+
   if (!Array.isArray(highlights)) {
-    data = highlights.replace(/(\r\n|\n|\r)/gm, '').replace(/'/g, '');
+    if (typeof highlights === 'object') return [];
+    data = highlights.replace(/(\r\n|\n|\r)/gm, '').replace(/'|"/g, '');
     data = parseStringData(data);
   }
 
   if (!Array.isArray(data)) return [];
 
-  let workingHighlights = data.slice();
+  let workingHighlights = null;
+
   if (!Array.isArray(highlights)) {
     workingHighlights = data.slice();
   } else {
     workingHighlights = highlights.slice();
   }
 
-  // const workingHighlights = highlights.slice();
-
-  // try {
   workingHighlights.sort((a, b) => a.startOffset - b.startOffset);
-  // } catch (e) {
-  // console.log(e);
-  // }
+  workingHighlights = workingHighlights.filter(
+    x => x.startOffset < x.endOffset
+  );
 
   let i = 1;
   while (i < workingHighlights.length) {
     const prev = workingHighlights[i - 1];
     const curr = workingHighlights[i];
 
-    const overlap = overlapCoords(prev, curr);
+    const overlap = hasOverlap(prev, curr);
 
     // need to split
     if (overlap) {
-      // split longer into 2
       if (secondIsInsideFirst(prev, curr)) {
-        if (!firstHasPriority(prev, curr)) {
+        // first covers 2nd - ignore 2nd completely
+        if (firstHasPriority(prev, curr)) {
+          workingHighlights.splice(i, 1);
+        }
+        // split longer into 2 parts
+        else {
           const furtherEnd = prev.endOffset;
           prev.endOffset = curr.startOffset;
 
@@ -68,16 +74,33 @@ export const formatHighlights = highlights => {
           newBlock.endOffset = furtherEnd;
           newBlock.join = ' join-left';
 
-          workingHighlights.splice(i + 1, 0, newBlock);
+          // get correct index where to insert block so highlights stay sorted
+          const getIndex = start => {
+            let i = 0;
+
+            while (
+              i < workingHighlights.length &&
+              start > workingHighlights[i].startOffset
+            ) {
+              i++;
+            }
+
+            return i;
+          };
+
+          const newIndex = getIndex(newBlock.startOffset);
+          workingHighlights.splice(newIndex, 0, newBlock);
         }
       } else {
         // shorten one
         if (firstHasPriority(prev, curr)) {
           curr.startOffset = prev.endOffset;
-          curr.join = ' join-left';
+          const joinClass = curr.join || '';
+          curr.join = joinClass + ' join-left';
         } else {
           prev.endOffset = curr.startOffset;
-          curr.join = ' join-left';
+          const joinClass = curr.join || '';
+          prev.join += joinClass + ' join-right';
         }
       }
     }
@@ -85,7 +108,19 @@ export const formatHighlights = highlights => {
     // no overlap, do nothing
     i++;
   }
-  return workingHighlights;
+
+  const isInOrder = (el, index, arr) => {
+    const prev = arr[index - 1] || { startOffset: -1, endOffset: -1 };
+    return (
+      el.startOffset > prev.startOffset &&
+      el.endOffset > prev.endOffset &&
+      el.startOffset >= prev.endOffset
+    );
+  };
+
+  if (workingHighlights.every(isInOrder)) return workingHighlights;
+
+  return formatHighlights(workingHighlights);
 };
 
 export const createHighlightedElements = (highlights, text) => {
@@ -100,7 +135,11 @@ export const createHighlightedElements = (highlights, text) => {
     if (index === 0 || item.startOffset > textIndex) {
       const content = text.substring(textIndex, item.startOffset);
       arrayOfChildren.push(
-        React.createElement(DynamicContent, { key: textIndex }, content)
+        React.createElement(
+          DynamicContent,
+          { key: `key-${textIndex}-${item.priority}-${index}` },
+          content
+        )
       );
       textIndex = item.startOffset;
     }
@@ -132,16 +171,10 @@ export const createHighlightedElements = (highlights, text) => {
     if (index === highlights.length - 1 && textIndex < text.length - 1) {
       const content = text.substring(item.endOffset);
       arrayOfChildren.push(
-        React.createElement(DynamicContent, { key: textIndex }, content)
+        React.createElement(DynamicContent, { key: index + textIndex }, content)
       );
     }
   });
 
-  return React.createElement(
-    'div',
-    {
-      className: 'myList'
-    },
-    arrayOfChildren
-  );
+  return React.createElement(DynamicContent, {}, arrayOfChildren);
 };

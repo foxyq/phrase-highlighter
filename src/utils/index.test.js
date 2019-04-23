@@ -17,64 +17,67 @@ describe('inputIsEmpty ', () => {
   });
 
   it('returns false for an object', () => {
-    expect(helper.inputIsEmpty([])).toBe(false);
     expect(helper.inputIsEmpty({})).toBe(false);
+  });
+
+  it('returns true for an empty array', () => {
+    expect(helper.inputIsEmpty([])).toBe(true);
+  });
+
+  it('returns false for non empty array', () => {
+    expect(helper.inputIsEmpty([1, 2])).toBe(false);
   });
 });
 
-describe('overlapCoords ', () => {
+describe('hasOverlap ', () => {
   const obj1 = { startOffset: 1, endOffset: 10 };
   const obj2 = { startOffset: 4, endOffset: 15 };
   const obj3 = { startOffset: 22, endOffset: 50 };
   const obj4 = { startOffset: 18, endOffset: 23 };
-  const res1 = [4, 10];
 
   it('returns coords for overlapping objects', () => {
-    expect(helper.overlapCoords(obj1, obj2)).toEqual(res1);
+    expect(helper.hasOverlap(obj1, obj2)).toEqual(true);
   });
 
   it('returns null for NON-overlapping objects', () => {
-    expect(helper.overlapCoords(obj1, obj3)).toEqual(null);
+    expect(helper.hasOverlap(obj1, obj3)).toEqual(false);
   });
   it('returns coords for overlapping objects', () => {
-    expect(helper.overlapCoords(obj4, obj3)).toEqual([22, 23]);
+    expect(helper.hasOverlap(obj4, obj3)).toEqual(true);
   });
 
   it('returns coords of object for the same object', () => {
-    expect(helper.overlapCoords(obj4, obj4)).toEqual([
-      obj4.startOffset,
-      obj4.endOffset
-    ]);
+    expect(helper.hasOverlap(obj4, obj4)).toEqual(true);
   });
 
-  it('returns null non objects', () => {
-    expect(helper.overlapCoords(1, 2)).toEqual(null);
+  it('returns false non objects', () => {
+    expect(helper.hasOverlap(1, 2)).toEqual(false);
   });
-  it('returns null non objects', () => {
-    expect(helper.overlapCoords('string', 'anotherOne')).toEqual(null);
+  it('returns false non objects', () => {
+    expect(helper.hasOverlap('string', 'anotherOne')).toEqual(false);
   });
-  it('returns null non objects', () => {
-    expect(helper.overlapCoords('test', 2)).toEqual(null);
-  });
-
-  it('returns null incomplete objects', () => {
-    expect(helper.overlapCoords({}, { startOffset: 4 })).toEqual(null);
+  it('returns false non objects', () => {
+    expect(helper.hasOverlap('test', 2)).toEqual(false);
   });
 
-  it('returns null incomplete objects', () => {
-    expect(helper.overlapCoords({}, { startOffset: 4, endOffset: 10 })).toEqual(
-      null
+  it('returns false incomplete objects', () => {
+    expect(helper.hasOverlap({}, { startOffset: 4 })).toEqual(false);
+  });
+
+  it('returns false incomplete objects', () => {
+    expect(helper.hasOverlap({}, { startOffset: 4, endOffset: 10 })).toEqual(
+      false
     );
   });
-  it('returns null incomplete objects', () => {
-    expect(
-      helper.overlapCoords({ startOffset: 5 }, { startOffset: 4 })
-    ).toEqual(null);
+  it('returns false incomplete objects', () => {
+    expect(helper.hasOverlap({ startOffset: 5 }, { startOffset: 4 })).toEqual(
+      false
+    );
   });
-  it('returns null incomplete objects', () => {
+  it('returns false incomplete objects', () => {
     expect(
-      helper.overlapCoords({ startOffset: 2, endOffset: 6 }, { startOffset: 4 })
-    ).toEqual(null);
+      helper.hasOverlap({ startOffset: 2, endOffset: 6 }, { startOffset: 4 })
+    ).toEqual(false);
   });
 });
 
@@ -148,5 +151,75 @@ describe('secondIsInsideFirst ', () => {
 
   it('returns false for wrong types', () => {
     expect(helper.secondIsInsideFirst(56, [])).toBe(false);
+  });
+});
+
+describe('formatHighlights ', () => {
+  const h1 = [{ startOffset: 4, endOffset: 31, color: '#d9f593', priority: 2 }];
+
+  const h2 = [
+    { startOffset: 4, endOffset: 31, color: '#d9f593', priority: 2 },
+    { startOffset: 10, endOffset: 20, color: 'red', priority: 1 }
+  ];
+  const res2 = [
+    {
+      startOffset: 4,
+      endOffset: 10,
+      color: '#d9f593',
+      priority: 2,
+      join: ' join-right'
+    },
+    {
+      startOffset: 10,
+      endOffset: 20,
+      color: 'red',
+      priority: 1
+    },
+    {
+      startOffset: 20,
+      endOffset: 31,
+      color: '#d9f593',
+      join: ' join-left',
+      priority: 2
+    }
+  ];
+
+  const h3 = [
+    { startOffset: 4, endOffset: 15, color: '#d9f593', priority: 2 },
+    { startOffset: 10, endOffset: 20, color: 'red', priority: 3 }
+  ];
+  const res3 = [
+    {
+      startOffset: 4,
+      endOffset: 15,
+      color: '#d9f593',
+      priority: 2
+    },
+    {
+      startOffset: 15,
+      endOffset: 20,
+      color: 'red',
+      priority: 3,
+      join: ' join-left'
+    }
+  ];
+
+  it('returns an empty array for wrong type', () => {
+    expect(helper.formatHighlights('string')).toEqual([]);
+    expect(helper.formatHighlights(9)).toEqual([]);
+    expect(helper.formatHighlights(9.123)).toEqual([]);
+    expect(helper.formatHighlights({})).toEqual([]);
+  });
+
+  it('returns the same array with 1 object', () => {
+    expect(helper.formatHighlights(h1)).toEqual(h1);
+  });
+
+  it('splits one object into two', () => {
+    expect(helper.formatHighlights(h2)).toEqual(res2);
+  });
+
+  it('splits one object into two2', () => {
+    expect(helper.formatHighlights(h3)).toEqual(res3);
   });
 });

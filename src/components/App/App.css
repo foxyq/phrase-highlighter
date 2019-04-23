@@ -2,9 +2,21 @@ body {
   font-size: calc(10px + 2vmin);
 }
 
+.overlay {
+  display: none;
+  z-index: 2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000ad;
+}
+
 .App {
+  position: relative;
+  z-index: 1;
   text-align: center;
-  /* background-color: #282c34; */
   background-color: #ffffff;
   color: rgb(94, 92, 92);
   min-height: 100vh;
@@ -13,7 +25,6 @@ body {
   align-items: center;
   justify-content: space-evenly;
   font-size: calc(10px + 2vmin);
-  /* color: white; */
 }
 
 .form {
@@ -35,18 +46,19 @@ input[type='submit'] {
 }
 
 .highlight {
-  position: relative;
   border-radius: 5px;
   border: 1px solid #fff;
+  padding: 2px;
+  position: relative;
 }
 
 .join-right {
-  border-radius: 5px 0 0 5px;
+  border-radius: 6px 0 0 6px;
   padding-right: 5px;
   margin-right: -5px;
 }
 
 .join-left {
-  padding-left: 5px;
-  margin-left: -5px;
+  padding-left: 6px;
+  margin-left: -6px;
 }
