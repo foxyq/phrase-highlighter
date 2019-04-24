@@ -1,3 +1,6 @@
+import React from 'react';
+import DynamicContent from '../components/DynamicContent/';
+
 const helper = require('./index.js');
 
 describe('inputIsEmpty ', () => {
@@ -167,7 +170,7 @@ describe('formatHighlights ', () => {
       endOffset: 10,
       color: '#d9f593',
       priority: 2,
-      join: ' join-right'
+      join: ' join-right '
     },
     {
       startOffset: 10,
@@ -179,7 +182,7 @@ describe('formatHighlights ', () => {
       startOffset: 20,
       endOffset: 31,
       color: '#d9f593',
-      join: ' join-left',
+      join: ' join-left ',
       priority: 2
     }
   ];
@@ -200,8 +203,138 @@ describe('formatHighlights ', () => {
       endOffset: 20,
       color: 'red',
       priority: 3,
-      join: ' join-left'
+      join: ' join-left '
     }
+  ];
+
+  const h4 = [
+    { startOffset: 4, endOffset: 25, color: '#d9f593', priority: 2 },
+    { startOffset: 20, endOffset: 39, color: 'green', priority: 1 },
+    { startOffset: 10, endOffset: 22, color: 'red', priority: 0 }
+  ];
+  const res4 = [
+    {
+      startOffset: 4,
+      endOffset: 10,
+      color: '#d9f593',
+      priority: 2,
+      join: ' join-right '
+    },
+    {
+      startOffset: 10,
+      endOffset: 22,
+      color: 'red',
+      priority: 0
+    },
+    {
+      startOffset: 22,
+      endOffset: 39,
+      color: 'green',
+      priority: 1,
+      join: ' join-left '
+    }
+  ];
+
+  const string =
+    "[{ startOffset: 4, endOffset: 31, color:'#d9f593', priority: 2 }]";
+
+  const insideCut = [
+    { startOffset: 4, endOffset: 31, color: '#d9f593', priority: 2 },
+    { startOffset: 15, endOffset: 25, color: 'red', priority: 4 }
+  ];
+
+  const cutSecond = [
+    { startOffset: 4, endOffset: 20, color: '#d9f593', priority: 2 },
+    { startOffset: 15, endOffset: 25, color: 'red', priority: 0 }
+  ];
+
+  const cutRes = [
+    {
+      startOffset: 4,
+      endOffset: 15,
+      color: '#d9f593',
+      priority: 2,
+      join: ' join-right '
+    },
+    {
+      startOffset: 15,
+      endOffset: 25,
+      color: 'red',
+      priority: 0
+    }
+  ];
+
+  const recallFn = [
+    {
+      startOffset: 0,
+      endOffset: 13,
+      color: '#d9f593',
+      priority: 2
+    },
+    {
+      startOffset: 5,
+      endOffset: 13,
+      color: '#e8e8e8',
+      priority: 1
+    },
+    {
+      startOffset: 5,
+      endOffset: 22,
+      color: '#bfe6fc',
+      priority: 2
+    },
+
+    {
+      startOffset: 30,
+      endOffset: 42,
+      color: '#bfe6fc',
+      priority: 4
+    },
+    {
+      startOffset: 33,
+      endOffset: 51,
+      color: 'orange',
+      priority: 2
+    },
+    {
+      startOffset: 43,
+      endOffset: 90,
+      color: 'limegreen',
+      priority: 1
+    }
+  ];
+
+  const recallRes = [
+    {
+      startOffset: 0,
+      endOffset: 5,
+      color: '#d9f593',
+      priority: 2,
+      join: ' join-right '
+    },
+    { startOffset: 5, endOffset: 13, color: '#e8e8e8', priority: 1 },
+    {
+      startOffset: 13,
+      endOffset: 22,
+      color: '#bfe6fc',
+      priority: 2,
+      join: ' join-left '
+    },
+    {
+      startOffset: 30,
+      endOffset: 33,
+      color: '#bfe6fc',
+      priority: 4,
+      join: ' join-right '
+    },
+    {
+      startOffset: 33,
+      endOffset: 43,
+      color: 'orange',
+      priority: 2,
+      join: ' join-right '
+    },
+    { startOffset: 43, endOffset: 90, color: 'limegreen', priority: 1 }
   ];
 
   it('returns an empty array for wrong type', () => {
@@ -221,5 +354,140 @@ describe('formatHighlights ', () => {
 
   it('splits one object into two2', () => {
     expect(helper.formatHighlights(h3)).toEqual(res3);
+  });
+
+  // it('splits one object into two3', () => {
+  //   expect(helper.formatHighlights(h4)).toEqual(res4);
+  // });
+
+  it('takes input string and returns object', () => {
+    expect(helper.formatHighlights(string)).toEqual(h1);
+  });
+
+  it('ignores enclosed object with lower priority', () => {
+    expect(helper.formatHighlights(insideCut)).toEqual(h1);
+  });
+
+  it('ignores enclosed object with lower priority', () => {
+    expect(helper.formatHighlights(cutSecond)).toEqual(cutRes);
+  });
+
+  it('re-calls function to finish formatting', () => {
+    expect(helper.formatHighlights(recallFn)).toEqual(recallRes);
+  });
+});
+
+describe('createHighlightedElements', () => {
+  const styleObj = {
+    backgroundColor: '#d9f593',
+    zIndex: 100
+  };
+
+  const createChildren1 = () => {
+    children.push(
+      React.createElement(DynamicContent, { key: `key-0-0-0` }, 'You ')
+    );
+
+    children.push(
+      React.createElement(
+        'span',
+        { key: 4, className: 'highlight ', style: styleObj },
+        'will deliver new'
+      )
+    );
+
+    children.push(
+      React.createElement(
+        DynamicContent,
+        { key: 20 },
+        ' technology with an adorable puppy. Perfect!'
+      )
+    );
+  };
+
+  const createChildren2 = () => {
+    children2.push(
+      React.createElement(DynamicContent, { key: 'key-0-0-0' }, '')
+    );
+
+    children2.push(
+      React.createElement(
+        'span',
+        { key: 0, className: 'highlight ', style: styleObj },
+        'You will deliver new'
+      )
+    );
+    children2.push(
+      React.createElement(DynamicContent, { key: 'key-20-0-1' }, ' tech')
+    );
+    children2.push(
+      React.createElement(
+        'span',
+        { key: 25, className: 'highlight ', style: styleObj },
+        'nolog'
+      )
+    );
+    children2.push(
+      React.createElement(
+        DynamicContent,
+        { key: 31 },
+        'y with an adorable puppy. Perfect!'
+      )
+    );
+  };
+
+  const text =
+    'You will deliver new technology with an adorable puppy. Perfect!';
+
+  const oneHighlight = [
+    {
+      startOffset: 4,
+      endOffset: 20,
+      color: '#d9f593',
+      priority: 0
+    }
+  ];
+
+  const children = [];
+  createChildren1();
+
+  const resComponent = React.createElement(DynamicContent, {}, children);
+
+  const twoHighlights = [
+    {
+      startOffset: 0,
+      endOffset: 20,
+      color: '#d9f593',
+      priority: 0
+    },
+    {
+      startOffset: 25,
+      endOffset: 30,
+      color: '#d9f593',
+      priority: 0
+    }
+  ];
+
+  const children2 = [];
+  createChildren2();
+
+  const resComponent2 = React.createElement(DynamicContent, {}, children2);
+
+  it('empty highlights returns div with text', () => {
+    expect(helper.createHighlightedElements('', text)).toEqual(
+      <div>{text}</div>
+    );
+  });
+
+  it('returns three correct children with one highlight in the middle of text', () => {
+    expect(helper.createHighlightedElements(oneHighlight, text)).toEqual(
+      resComponent
+    );
+  });
+
+  it('returns correct children with two highlights', () => {
+    expect(helper.createHighlightedElements(twoHighlights, text)).toEqual(
+      resComponent2
+    );
   });
 });

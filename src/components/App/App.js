@@ -20,7 +20,7 @@ class App extends Component {
     e.preventDefault();
 
     const rawText = e.target.text.value;
-    const formText = inputIsEmpty(rawText) ? this.state.text : rawText;
+    const formText = rawText || this.state.text;
 
     const rawHighlights = e.target.highlights.value;
     const formHighlights = inputIsEmpty(rawHighlights)

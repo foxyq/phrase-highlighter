@@ -22,6 +22,18 @@ export const secondIsInsideFirst = (first, second) =>
   second.endOffset <= first.endOffset;
 
 export const formatHighlights = highlights => {
+  // get correct index where to insert block so highlights stay sorted
+  const getIndex = start => {
+    let i = 0;
+    while (
+      i < workingHighlights.length &&
+      start > workingHighlights[i].startOffset
+    ) {
+      i++;
+    }
+    return i;
+  };
+
   let data = [];
 
   if (typeof highlights === 'number') return [];
@@ -68,25 +80,15 @@ export const formatHighlights = highlights => {
 
           const newBlock = { ...prev };
           const currJoin = prev.join || '';
-
-          prev.join = currJoin + ' join-right';
+          if (!currJoin.includes('join-right')) {
+            prev.join = currJoin + ' join-right ';
+          }
           newBlock.startOffset = curr.endOffset;
           newBlock.endOffset = furtherEnd;
-          newBlock.join = ' join-left';
-
-          // get correct index where to insert block so highlights stay sorted
-          const getIndex = start => {
-            let i = 0;
-
-            while (
-              i < workingHighlights.length &&
-              start > workingHighlights[i].startOffset
-            ) {
-              i++;
-            }
-
-            return i;
-          };
+          const newJoin = newBlock.join || '';
+          if (!newJoin.includes('join-left')) {
+            newBlock.join = ' join-left ';
+          }
 
           const newIndex = getIndex(newBlock.startOffset);
           workingHighlights.splice(newIndex, 0, newBlock);
@@ -94,13 +96,25 @@ export const formatHighlights = highlights => {
       } else {
         // shorten one
         if (firstHasPriority(prev, curr)) {
+          // move current block ahead to keep arr sorted
+          const placeAtIndex = getIndex(prev.endOffset);
+
+          if (placeAtIndex !== i) {
+            workingHighlights.splice(placeAtIndex, 0, curr);
+            workingHighlights.splice(i, 1);
+          }
+
           curr.startOffset = prev.endOffset;
-          const joinClass = curr.join || '';
-          curr.join = joinClass + ' join-left';
+          const addClass = curr.join || '';
+          if (!addClass.includes('join-left')) {
+            curr.join = addClass + ' join-left ';
+          }
         } else {
           prev.endOffset = curr.startOffset;
-          const joinClass = curr.join || '';
-          prev.join += joinClass + ' join-right';
+          const newClass = prev.join || '';
+          if (!newClass.includes('join-right')) {
+            prev.join = newClass + ' join-right ';
+          }
         }
       }
     }
@@ -132,6 +146,7 @@ export const createHighlightedElements = (highlights, text) => {
 
   highlights.forEach((item, index) => {
     //copy words before first highlight || in between highlights
+    /* istanbul ignore else */
     if (index === 0 || item.startOffset > textIndex) {
       const content = text.substring(textIndex, item.startOffset);
       arrayOfChildren.push(
@@ -145,8 +160,8 @@ export const createHighlightedElements = (highlights, text) => {
     }
 
     // highlighted word
-    const joinClass = item.join || '';
-    const className = 'highlight ' + joinClass;
+    const addedClass = item.join || '';
+    const className = 'highlight ' + addedClass;
     const content = text.substring(item.startOffset, item.endOffset);
 
     const styles = {

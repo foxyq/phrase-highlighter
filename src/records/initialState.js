@@ -1,5 +1,6 @@
 const initState = {
   text: 'You will deliver new technology with an adorable puppy. Perfect!',
+
   highlights: [
     {
       startOffset: 4,
@@ -229,7 +230,5 @@ const initState7 = {
   ],
   toDisplay: ''
 };
-
 */
-
 export default initState;
