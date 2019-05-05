@@ -47,7 +47,7 @@ input[type='submit'] {
 }
 
 .highlight {
-  border-radius: 5px;
+  /* border-radius: 5px; */
   padding: 2px;
   position: relative;
 }
@@ -63,18 +63,29 @@ input[type='submit'] {
   margin-left: -6px;
 }
 
-.orange {
-  background-color: #f1ce90;
-}
-.blue {
-  background-color: #bfe6fc;
-}
-.green {
-  background-color: #e2f29a;
+.grey {
+  background-color: #e8e8e8;
+  z-index: 2;
 }
 .purple {
   background-color: #e1bbfc;
+  z-index: 3;
 }
-.grey {
-  background-color: #e8e8e8;
+.blue {
+  background-color: #bfe6fc;
+  z-index: 4;
+}
+.green {
+  background-color: #e2f29a;
+  z-index: 5;
+}
+.orange {
+  background-color: #f1ce90;
+  z-index: 6;
+}
+
+.highlight-active {
+  color: white;
+  filter: saturate(250%);
+  z-index: 10;
 }

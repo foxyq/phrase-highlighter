@@ -4,8 +4,10 @@ import Form from '../Form';
 import initState from '../../records/initialState';
 import {
   inputIsEmpty,
-  formatHighlights,
-  createHighlightedElements
+  createWords,
+  createHighlights,
+  addClassesToWords,
+  createRenderableDom
 } from '../../utils';
 
 import './App.css';
@@ -16,142 +18,85 @@ class App extends Component {
     this.state = initState;
   }
 
-  createWords = string => {
-    const validWords = [];
+  componentDidUpdate = (prevProps, prevState) => {
+    const { highlightedIndex, text, highlights } = this.state;
 
-    const pattern = /\w+[-]*\w*|[.,?!;:'"()]+/gi;
-    // const pattern = /(\b\w+[-]*\w*\b)|([/,/./!/?])/gi;
+    if (prevState.highlightedIndex !== highlightedIndex) {
+      const parsedWords = createWords(text);
+      const parsedHighlights = createHighlights(text, highlights);
 
-    let matched = '';
-    while ((matched = pattern.exec(string)) !== null) {
-      // This is necessary to avoid infinite loops with zero-width matches
-      // if (m.index === regex.lastIndex) {
-      //   regex.lastIndex++;
-      // }
+      const wordsWithClasses = addClassesToWords(
+        parsedWords,
+        parsedHighlights,
+        highlightedIndex
+      );
 
-      validWords.push({
-        word: matched[0],
-        start: matched.index,
-        end: matched.index + matched[0].length - 1
-      });
+      const dom = createRenderableDom(
+        wordsWithClasses,
+        this.onMouseHover,
+        this.onMouseOut
+      );
+
+      this.setState({ toDisplay: dom });
     }
-
-    return validWords;
   };
 
-  createHighlights = (words, highlights) => {
-    const resultHighlights = [];
+  getFormText = e => {
+    return e.target.text.value || this.state.text;
+  };
 
-    highlights.forEach((highlight, highlightIndex) => {
-      const color = highlight.color || 'none';
+  getFormHighlights = e => {
+    const rawHighlights = e.target.highlights.value;
 
-      highlight.phrases.forEach(phrase => {
-        const pattern = `\\b${phrase}\\b`;
-        const regex = new RegExp(pattern, 'gi');
+    return inputIsEmpty(rawHighlights) ? this.state.highlights : rawHighlights;
+  };
 
-        let found = regex.exec(words);
+  onMouseHover = e => {
+    const highlightIndices = e.target
+      .getAttribute('datahighlightindex')
+      .split(' ');
 
-        while (found !== null) {
-          resultHighlights.push({
-            phrase,
-            color,
-            zIndex: 10 - highlightIndex,
-            start: found.index,
-            end: found.index + phrase.length - 1
-          });
-
-          found = regex.exec(words);
-        }
+    const toHighlight = this.state.parsedHighlights
+      .filter((x, i) => highlightIndices.includes(i.toString()))
+      .reduce((acc, next) => {
+        return acc.priority < next.priority ? acc : next;
       });
-    });
 
-    return resultHighlights.sort((a, b) => a.start - b.start);
+    // toHighlight.priority = 0;
+    const indexToHighlight = this.state.parsedHighlights.indexOf(toHighlight);
+
+    this.setState({ highlightedIndex: indexToHighlight });
   };
 
-  addClassesToWords = (words, highlights) => {
-    const wordsWithClasses = JSON.parse(JSON.stringify(words));
-
-    highlights.forEach(highlight => {
-      wordsWithClasses.forEach(word => {
-        const wordIsIncludedInPhrase = () =>
-          highlight.start <= word.start && highlight.end >= word.end;
-
-        if (wordIsIncludedInPhrase()) {
-          const hasClassesArray = word.classes;
-
-          if (!hasClassesArray) {
-            word.classes = [];
-          }
-
-          word.classes.push({
-            color: highlight.color,
-            zIndex: highlight.zIndex
-          });
-        }
-      });
-    });
-
-    return wordsWithClasses;
-  };
-
-  getClassNames = classes => {
-    let names = '';
-
-    classes.forEach(classItem => (names += classItem.color + ' '));
-
-    return names.trim();
-  };
-
-  createRenderableDom = content => {
-    if (!Array.isArray(content)) return <span>nothing to display</span>;
-
-    const spanArray = [];
-    content.forEach(item => {
-      if (!item.classes) {
-        spanArray.push(<span key={item.start}>{item.word} </span>);
-      } else {
-        const names = this.getClassNames(item.classes);
-
-        spanArray.push(
-          <span
-            key={item.start}
-            className={'highlight ' + names}
-            style={{ zIndex: item.classes[0].zIndex }}
-          >
-            {item.word}{' '}
-          </span>
-        );
-      }
-    });
-
-    return spanArray;
+  onMouseOut = () => {
+    this.setState({ highlightedIndex: null });
   };
 
   handleSubmit = e => {
     e.preventDefault();
+    const formText = this.getFormText(e);
+    const formHighlights = this.getFormHighlights(e);
 
-    const formText = e.target.text.value || this.state.text;
-    const parsedWords = this.createWords(formText);
+    // parse input into arrays with required properties
+    const parsedWords = createWords(formText);
+    const parsedHighlights = createHighlights(formText, formHighlights);
+    const wordsWithClasses = addClassesToWords(parsedWords, parsedHighlights);
 
-    const rawHighlights = e.target.highlights.value;
-    const formHighlights = inputIsEmpty(rawHighlights)
-      ? this.state.highlights
-      : rawHighlights;
+    // console.log(parsedWords);
+    console.log(parsedHighlights);
+    // console.log(wordsWithClasses);
 
-    const parsedHighlights = this.createHighlights(formText, formHighlights);
-
-    const wordsWithClasses = this.addClassesToWords(
-      parsedWords,
-      parsedHighlights
+    const dom = createRenderableDom(
+      wordsWithClasses,
+      this.onMouseHover,
+      this.onMouseOut
     );
-
-    console.log(wordsWithClasses);
-
-    const dom = this.createRenderableDom(wordsWithClasses);
 
     this.setState({
       text: formText,
       highlights: formHighlights,
+      parsedHighlights,
+      highlightedIndex: null,
       toDisplay: dom
     });
   };
