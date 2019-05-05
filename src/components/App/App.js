@@ -19,7 +19,8 @@ class App extends Component {
   createWords = string => {
     const validWords = [];
 
-    const pattern = /\b\w+[-]*\w*\b/gi;
+    const pattern = /\w+[-]*\w*|[.,?!;:'"()]+/gi;
+    // const pattern = /(\b\w+[-]*\w*\b)|([/,/./!/?])/gi;
 
     let matched = '';
     while ((matched = pattern.exec(string)) !== null) {
@@ -68,24 +69,24 @@ class App extends Component {
   };
 
   addClassesToWords = (words, highlights) => {
-    const wordsWithClasses = words.slice();
+    const wordsWithClasses = JSON.parse(JSON.stringify(words));
 
     highlights.forEach(highlight => {
       wordsWithClasses.forEach(word => {
-        // a bit hacky, fix this for words at the end of sentence
-        const wordEnd = word.start + word.word.length - 2;
+        const wordIsIncludedInPhrase = () =>
+          highlight.start <= word.start && highlight.end >= word.end;
 
-        const isIn = () =>
-          highlight.start <= word.start && highlight.end >= wordEnd;
-
-        if (isIn()) {
+        if (wordIsIncludedInPhrase()) {
           const hasClassesArray = word.classes;
 
           if (!hasClassesArray) {
             word.classes = [];
           }
 
-          word.classes.push(highlight.color);
+          word.classes.push({
+            color: highlight.color,
+            zIndex: highlight.zIndex
+          });
         }
       });
     });
@@ -93,13 +94,44 @@ class App extends Component {
     return wordsWithClasses;
   };
 
+  getClassNames = classes => {
+    let names = '';
+
+    classes.forEach(classItem => (names += classItem.color + ' '));
+
+    return names.trim();
+  };
+
+  createRenderableDom = content => {
+    if (!Array.isArray(content)) return <span>nothing to display</span>;
+
+    const spanArray = [];
+    content.forEach(item => {
+      if (!item.classes) {
+        spanArray.push(<span key={item.start}>{item.word} </span>);
+      } else {
+        const names = this.getClassNames(item.classes);
+
+        spanArray.push(
+          <span
+            key={item.start}
+            className={'highlight ' + names}
+            style={{ zIndex: item.classes[0].zIndex }}
+          >
+            {item.word}{' '}
+          </span>
+        );
+      }
+    });
+
+    return spanArray;
+  };
+
   handleSubmit = e => {
     e.preventDefault();
 
-    const rawText = e.target.text.value;
-    const formText = rawText || this.state.text;
+    const formText = e.target.text.value || this.state.text;
     const parsedWords = this.createWords(formText);
-    console.log(parsedWords);
 
     const rawHighlights = e.target.highlights.value;
     const formHighlights = inputIsEmpty(rawHighlights)
@@ -108,27 +140,20 @@ class App extends Component {
 
     const parsedHighlights = this.createHighlights(formText, formHighlights);
 
-    console.log(parsedHighlights);
+    const wordsWithClasses = this.addClassesToWords(
+      parsedWords,
+      parsedHighlights
+    );
 
-    // console.log(this.addClassesToWords(words, objects));
+    console.log(wordsWithClasses);
 
-    // const newHighlights = formatHighlights(formHighlights);
-    // // const newHighlights = [];
-    // // const reactElementDiv = createHighlightedElements(newHighlights, formText);
+    const dom = this.createRenderableDom(wordsWithClasses);
 
-    // const arr = [
-    //   <span style={{ color: '#efefef' }}>sad1</span>,
-    //   <span className='tololol'>2</span>,
-    //   <span>2</span>
-    // ];
-
-    // const reactElementDiv = <div>{arr.map(x => x)}</div>;
-
-    // this.setState({
-    //   text: formText,
-    //   highlights: newHighlights,
-    //   toDisplay: reactElementDiv
-    // });
+    this.setState({
+      text: formText,
+      highlights: formHighlights,
+      toDisplay: dom
+    });
   };
 
   render() {
