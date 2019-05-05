@@ -1,39 +1,31 @@
 const initState = {
-  text: 'You will deliver new technology with an adorable puppy. Perfect!',
+  text:
+    'We expect our candidates to be action-oriented, an adorable puppy, and have creative ideas for our team. They will deliver new technology and their creativity will be very unlikely to leave.',
 
   highlights: [
     {
-      startOffset: 4,
-      endOffset: 20,
-      color: '#d9f593',
-      priority: 0
+      color: 'orange',
+      phrases: [
+        'action-oriented',
+        'alarming',
+        'candidates',
+        'leave',
+        'do not want'
+      ]
     },
     {
-      startOffset: 17,
-      endOffset: 31,
-      color: '#e8e8e8',
-      priority: 1
+      color: 'green',
+      phrases: ['adorable', 'creative', 'love', 'will deliver new']
     },
     {
-      startOffset: 37,
-      endOffset: 55,
-      color: '#bfe6fc',
-      priority: 1
+      color: 'blue',
+      phrases: ['an adorable puppy', 'aggressive', 'arm', 'very unlikely']
     },
-
     {
-      startOffset: 40,
-      endOffset: 48,
-      color: '#d9f593',
-      priority: 0
+      color: 'purple',
+      phrases: ['do not cross', 'log file', 'our team', 'radio']
     },
-
-    {
-      startOffset: 55,
-      endOffset: 64,
-      color: '#f1ce90',
-      priority: 1
-    }
+    { color: 'grey', phrases: ['very unlikely to leave', 'new technology'] }
   ],
 
   toDisplay: ''
