@@ -10,12 +10,13 @@ const initState = {
         'alarming',
         'candidates',
         'leave',
-        'do not want'
+        'do not want',
+        'new'
       ]
     },
     {
       color: 'green',
-      phrases: ['adorable', 'creative', 'love', 'will deliver new']
+      phrases: ['adorable', 'creative', 'our candidates', 'will deliver new']
     },
     {
       color: 'blue',
@@ -23,12 +24,33 @@ const initState = {
     },
     {
       color: 'purple',
-      phrases: ['do not cross', 'log file', 'our team', 'radio']
+      phrases: ['do not cross', 'log file', 'our team', 'radio', 'test']
     },
-    { color: 'grey', phrases: ['very unlikely to leave', 'new technology'] }
+    {
+      color: 'grey',
+      phrases: [
+        'very unlikely to leave',
+        'new technology',
+        'text',
+        'another test'
+      ]
+    }
   ],
-  highlightedIndex: 3,
+  highlightedIndex: null,
   toDisplay: ''
 };
-
+/*
+const initState2 = {
+  text: 'We expect our candidates to be action-oriented, an adorable puppy',
+  highlights: [
+    { color: 'orange', phrases: ['be action-oriented'] },
+    { color: 'green', phrases: ['to be'] },
+    { color: 'blue', phrases: ['candidates to be action-oriented'] },
+    {
+      color: 'purple',
+      phrases: ['expect our candidates to be action-oriented']
+    }
+  ]
+};
+*/
 export default initState;

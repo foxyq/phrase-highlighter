@@ -3,38 +3,27 @@
 exports[`Form component matches snapshot 1`] = `
 <form
   className="form"
-  onSubmit={[Function]}
 >
   <label
     htmlFor="text"
   >
     Sentence or a paragraph to be highlighted
   </label>
-  <br />
   <textarea
     cols="70"
     name="text"
     rows="3"
   />
-  <label
-    htmlFor="highlights"
-  >
-    Array of highlighted objects
-  </label>
   <br />
+  <label
+    htmlFor="text"
+  >
+    Colors: orange, green, blue, purple, grey
+  </label>
   <textarea
     cols="70"
     name="highlights"
-    rows="10"
-  />
-  <pre
-    name="example"
-  >
-    [{startOffset: 4, endOffset: 31, color: '#d9f593', priority: 2}]
-  </pre>
-  <input
-    type="submit"
-    value="Submit"
+    rows="6"
   />
 </form>
 `;

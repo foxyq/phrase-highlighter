@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import DynamicContent from '../DynamicContent';
 import Form from '../Form';
 import initState from '../../records/initialState';
 import {
-  inputIsEmpty,
   createWords,
   createHighlights,
   addClassesToWords,
-  createRenderableDom
+  createRenderableDom,
+  isHighlightsInputValid,
+  arrayFromHighlightsInput
 } from '../../utils';
 
-import './App.css';
+import './App.scss';
 
 class App extends Component {
   constructor(props) {
@@ -18,73 +18,47 @@ class App extends Component {
     this.state = initState;
   }
 
-  componentDidUpdate = (prevProps, prevState) => {
-    const { highlightedIndex, text, highlights } = this.state;
+  componentDidMount = () => {
+    const text = this.state.text;
+    const highlights = this.state.highlights;
 
-    if (prevState.highlightedIndex !== highlightedIndex) {
-      const parsedWords = createWords(text);
-      const parsedHighlights = createHighlights(text, highlights);
-
-      const wordsWithClasses = addClassesToWords(
-        parsedWords,
-        parsedHighlights,
-        highlightedIndex
-      );
-
-      const dom = createRenderableDom(
-        wordsWithClasses,
-        this.onMouseHover,
-        this.onMouseOut
-      );
-
-      this.setState({ toDisplay: dom });
-    }
-  };
-
-  getFormText = e => {
-    return e.target.text.value || this.state.text;
-  };
-
-  getFormHighlights = e => {
-    const rawHighlights = e.target.highlights.value;
-
-    return inputIsEmpty(rawHighlights) ? this.state.highlights : rawHighlights;
+    this.parseInputAndSetState(text, highlights);
   };
 
   onMouseHover = e => {
-    const highlightIndices = e.target
-      .getAttribute('datahighlightindex')
-      .split(' ');
+    const dataIndex = String(e.target.getAttribute('datahighlightindex'));
+    const highlightIndices = dataIndex.split(' ');
 
-    const toHighlight = this.state.parsedHighlights
-      .filter((x, i) => highlightIndices.includes(i.toString()))
-      .reduce((acc, next) => {
-        return acc.priority < next.priority ? acc : next;
-      });
+    const parsedHighlights = this.state.parsedHighlights;
 
-    // toHighlight.priority = 0;
-    const indexToHighlight = this.state.parsedHighlights.indexOf(toHighlight);
+    const toHighlight = parsedHighlights
+      .map((x, i) => ({ ...x, index: i }))
+      .filter(x => highlightIndices.includes(String(x.index)))
+      .reduce((acc, next) => (acc.priority < next.priority ? acc : next));
 
-    this.setState({ highlightedIndex: indexToHighlight });
+    const { text, highlights } = this.state;
+    this.parseInputAndSetState(text, highlights, toHighlight.index);
   };
 
   onMouseOut = () => {
-    this.setState({ highlightedIndex: null });
+    const { text, highlights } = this.state;
+    this.parseInputAndSetState(text, highlights);
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
-    const formText = this.getFormText(e);
-    const formHighlights = this.getFormHighlights(e);
+  parseInputAndSetState = (newText, newHighlights, highlightedIndex = null) => {
+    const parsedWords = createWords(newText);
 
-    // parse input into arrays with required properties
-    const parsedWords = createWords(formText);
-    const parsedHighlights = createHighlights(formText, formHighlights);
-    const wordsWithClasses = addClassesToWords(parsedWords, parsedHighlights);
+    const parsedHighlights = createHighlights(
+      newText,
+      newHighlights,
+      highlightedIndex
+    );
 
-    // console.log(parsedWords);
-    console.log(parsedHighlights);
-    // console.log(wordsWithClasses);
+    const wordsWithClasses = addClassesToWords(
+      parsedWords,
+      parsedHighlights,
+      highlightedIndex
+    );
 
     const dom = createRenderableDom(
       wordsWithClasses,
@@ -93,12 +67,25 @@ class App extends Component {
     );
 
     this.setState({
-      text: formText,
-      highlights: formHighlights,
+      text: newText,
+      highlights: newHighlights,
+      highlightedIndex,
       parsedHighlights,
-      highlightedIndex: null,
       toDisplay: dom
     });
+  };
+
+  onTextChange = e => {
+    const text = e.target.value;
+    this.parseInputAndSetState(text, this.state.highlights);
+  };
+
+  onHighlightsChange = e => {
+    const highlights = arrayFromHighlightsInput(e.target.value);
+
+    if (isHighlightsInputValid(highlights)) {
+      this.parseInputAndSetState(this.state.text, highlights);
+    }
   };
 
   render() {
@@ -109,12 +96,13 @@ class App extends Component {
           <section>
             <Form
               text={this.state.text}
+              onTextChange={this.onTextChange}
               highlights={JSON.stringify(this.state.highlights)}
-              handleSubmit={this.handleSubmit}
+              onHighlightsChange={this.onHighlightsChange}
             />
           </section>
-          <section>
-            <DynamicContent>{this.state.toDisplay}</DynamicContent>
+          <section id='content'>
+            <>{this.state.toDisplay}</>
           </section>
         </div>
       </div>

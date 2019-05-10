@@ -11,45 +11,209 @@ exports[`App component matches snapshot 1`] = `
     <section>
       <form
         className="form"
-        onSubmit={[Function]}
       >
         <label
           htmlFor="text"
         >
           Sentence or a paragraph to be highlighted
         </label>
-        <br />
         <textarea
           cols="70"
           name="text"
-          placeholder="You will deliver new technology with an adorable puppy. Perfect!"
+          onChange={[Function]}
           rows="3"
+          value="We expect our candidates to be action-oriented, an adorable puppy, and have creative ideas for our team. They will deliver new technology and their creativity will be very unlikely to leave."
         />
-        <label
-          htmlFor="highlights"
-        >
-          Array of highlighted objects
-        </label>
         <br />
+        <label
+          htmlFor="text"
+        >
+          Colors: orange, green, blue, purple, grey
+        </label>
         <textarea
           cols="70"
           name="highlights"
-          placeholder="[{\\"startOffset\\":4,\\"endOffset\\":20,\\"color\\":\\"#d9f593\\",\\"priority\\":0},{\\"startOffset\\":17,\\"endOffset\\":31,\\"color\\":\\"#e8e8e8\\",\\"priority\\":1},{\\"startOffset\\":37,\\"endOffset\\":55,\\"color\\":\\"#bfe6fc\\",\\"priority\\":1},{\\"startOffset\\":40,\\"endOffset\\":48,\\"color\\":\\"#d9f593\\",\\"priority\\":0},{\\"startOffset\\":55,\\"endOffset\\":64,\\"color\\":\\"#f1ce90\\",\\"priority\\":1}]"
-          rows="10"
-        />
-        <pre
-          name="example"
-        >
-          [{startOffset: 4, endOffset: 31, color: '#d9f593', priority: 2}]
-        </pre>
-        <input
-          type="submit"
-          value="Submit"
+          onChange={[Function]}
+          placeholder="[{\\"color\\":\\"orange\\",\\"phrases\\":[\\"action-oriented\\",\\"alarming\\",\\"candidates\\",\\"leave\\",\\"do not want\\",\\"new\\"]},{\\"color\\":\\"green\\",\\"phrases\\":[\\"adorable\\",\\"creative\\",\\"our candidates\\",\\"will deliver new\\"]},{\\"color\\":\\"blue\\",\\"phrases\\":[\\"an adorable puppy\\",\\"aggressive\\",\\"arm\\",\\"very unlikely\\"]},{\\"color\\":\\"purple\\",\\"phrases\\":[\\"do not cross\\",\\"log file\\",\\"our team\\",\\"radio\\",\\"test\\"]},{\\"color\\":\\"grey\\",\\"phrases\\":[\\"very unlikely to leave\\",\\"new technology\\",\\"text\\",\\"another test\\"]}]"
+          rows="6"
         />
       </form>
     </section>
-    <section>
-      
+    <section
+      id="content"
+    >
+      We
+       
+      expect
+       
+      <span
+        className="highlight green green-round-left"
+        datahighlightindex="0"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        our 
+      </span>
+      <span
+        className="highlight green green-round-right orange orange-round-left orange-round-right"
+        datahighlightindex="0 1"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        candidates 
+      </span>
+      to
+       
+      be
+       
+      <span
+        className="highlight orange orange-round-left orange-round-right"
+        datahighlightindex="2"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        action-oriented 
+      </span>
+      ,
+       
+      <span
+        className="highlight blue blue-round-left"
+        datahighlightindex="3"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        an 
+      </span>
+      <span
+        className="highlight blue green green-round-left green-round-right"
+        datahighlightindex="3 4"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        adorable 
+      </span>
+      <span
+        className="highlight blue blue-round-right"
+        datahighlightindex="3"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        puppy 
+      </span>
+      ,
+       
+      and
+       
+      have
+       
+      <span
+        className="highlight green green-round-left green-round-right"
+        datahighlightindex="5"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        creative 
+      </span>
+      ideas
+       
+      for
+       
+      <span
+        className="highlight purple purple-round-left"
+        datahighlightindex="6"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        our 
+      </span>
+      <span
+        className="highlight purple purple-round-right"
+        datahighlightindex="6"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        team 
+      </span>
+      .
+       
+      They
+       
+      <span
+        className="highlight green green-round-left"
+        datahighlightindex="7"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        will 
+      </span>
+      <span
+        className="highlight green"
+        datahighlightindex="7"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        deliver 
+      </span>
+      <span
+        className="highlight green green-round-right orange orange-round-left orange-round-right grey grey-round-left"
+        datahighlightindex="7 8 9"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        new 
+      </span>
+      <span
+        className="highlight grey grey-round-right"
+        datahighlightindex="9"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        technology 
+      </span>
+      and
+       
+      their
+       
+      creativity
+       
+      will
+       
+      be
+       
+      <span
+        className="highlight blue blue-round-left grey grey-round-left"
+        datahighlightindex="10 11"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        very 
+      </span>
+      <span
+        className="highlight blue blue-round-right grey"
+        datahighlightindex="10 11"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        unlikely 
+      </span>
+      <span
+        className="highlight grey"
+        datahighlightindex="11"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        to 
+      </span>
+      <span
+        className="highlight grey grey-round-right orange orange-round-left orange-round-right"
+        datahighlightindex="11 12"
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+      >
+        leave 
+      </span>
+      .
+       
     </section>
   </div>
 </div>

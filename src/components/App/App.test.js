@@ -17,68 +17,85 @@ describe('App component', () => {
     expect(Component).toMatchSnapshot();
   });
 });
-describe('handleSubmit behavior', () => {
-  it('prevents default', () => {
+
+describe('onTextChange', () => {
+  const evt = {
+    target: {
+      value: 'foo'
+    }
+  };
+
+  it('extracts event value and changes state', () => {
     const Component = renderer.create(<App />);
-    const preventDefault = jest.fn();
-    const event = {
-      preventDefault,
-      target: {
-        highlights: {
-          value: 'Foo'
-        },
-        text: {
-          value: 'Bar'
-        }
-      }
-    };
+    const instance = Component.getInstance();
 
-    Component.getInstance().handleSubmit(event);
-
-    expect(preventDefault).toBeCalled();
-  });
-
-  it('preserves state when given empty input', () => {
-    const Component = renderer.create(<App />);
-    const preventDefault = jest.fn();
-    const event = {
-      preventDefault,
-      target: {
-        highlights: {
-          value: ''
-        },
-        text: {
-          value: ''
-        }
-      }
-    };
-
-    Component.getInstance().handleSubmit(event);
-
-    const text = Component.getInstance().state.text;
+    const text = instance.state.text;
+    instance.onTextChange(evt);
+    const newText = instance.state.text;
 
     expect(text).toEqual(initState.text);
+    expect(newText).toEqual('foo');
   });
+});
 
-  it('changes state to non-empty input', () => {
-    const Component = renderer.create(<App />);
-    const preventDefault = jest.fn();
-    const event = {
-      preventDefault,
+describe('onHighlightsChange', () => {
+  const Component = renderer.create(<App />);
+  const instance = Component.getInstance();
+  const highlights = instance.state.highlights;
+
+  it('changes state with valid input', () => {
+    const evt = {
       target: {
-        highlights: {
-          value: ''
-        },
-        text: {
-          value: 'new text'
-        }
+        value:
+          '[{"color":"blue", "phrases":["test", "foobar"]}, {"color":"green", "phrases":["foo", "bar"]}]'
       }
     };
 
-    Component.getInstance().handleSubmit(event);
+    expect(highlights).toBe(initState.highlights);
 
-    const text = Component.getInstance().state.text;
+    instance.onHighlightsChange(evt);
 
-    expect(text).toEqual('new text');
+    expect(instance.state.highlights).toEqual(JSON.parse(evt.target.value));
+  });
+
+  it('does not change state with invalid input', () => {
+    const evt = {
+      target: {
+        value: 'test'
+      }
+    };
+
+    const evt2 = {
+      target: {
+        value: '[{"color":"blue"}]'
+      }
+    };
+    expect(highlights).toBe(initState.highlights);
+    instance.onHighlightsChange(evt);
+    expect(highlights).toBe(initState.highlights);
+    instance.onHighlightsChange(evt2);
+    expect(highlights).toBe(initState.highlights);
+  });
+});
+
+describe('onMouseOver & onMouseOut', () => {
+  const evt = {
+    target: {
+      datahighlightindex: ['7 8 9'],
+      getAttribute: function(name) {
+        return this[name];
+      }
+    }
+  };
+
+  it('changes highlightedIndex in state to 2 and back to null', () => {
+    const Component = renderer.create(<App />);
+    const instance = Component.getInstance();
+
+    expect(instance.state.highlightedIndex).toBe(null);
+    instance.onMouseHover(evt);
+    expect(instance.state.highlightedIndex).toBe(8);
+    instance.onMouseOut();
+    expect(instance.state.highlightedIndex).toBe(null);
   });
 });

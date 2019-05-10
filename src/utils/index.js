@@ -1,221 +1,131 @@
 import React from 'react';
 
-// import DynamicContent from '../components/DynamicContent/';
-
-export const inputIsEmpty = input =>
-  input === null || input === '' || input.length === 0;
-
-/*
 const parseStringData = require('parse-string-data');
 
-
-
-
+/* --------------
+Helper functions
+--------------- */
 
 export const hasOverlap = (block1, block2) => {
-  const start = Math.max(block1.startOffset, block2.startOffset);
-  const end = Math.min(block1.endOffset, block2.endOffset);
+  const start = Math.max(block1.start, block2.start);
+  const end = Math.min(block1.end, block2.end);
 
   return start < end;
 };
 
-export const firstHasPriority = (first, second) => {
-  return first.priority < second.priority;
+const wordIsIncludedInPhrase = (highlight, word) =>
+  highlight.start <= word.start && highlight.end >= word.end;
+
+export const arrayFromHighlightsInput = input => {
+  if (typeof input === 'object') return [];
+  const preppedText = input.replace(/(\r\n|\n|\r)/gm, '').replace(/'|"/g, '');
+  const wannabeArray = parseStringData(preppedText);
+
+  return wannabeArray;
 };
 
-export const secondIsInsideFirst = (first, second) =>
-  second.startOffset >= first.startOffset &&
-  second.endOffset <= first.endOffset;
+export const isHighlightsInputValid = highlights => {
+  if (!Array.isArray(highlights)) return false;
 
-export const formatHighlights = highlights => {
-  // get correct index where to insert block so highlights stay sorted
-  const getIndex = start => {
-    let i = 0;
-    while (
-      i < workingHighlights.length &&
-      start > workingHighlights[i].startOffset
-    ) {
-      i++;
+  for (let highlight of highlights) {
+    if (!highlight.hasOwnProperty('color')) {
+      return false;
     }
-    return i;
-  };
 
-  let data = [];
+    if (typeof highlight.color !== 'string') {
+      return false;
+    }
 
-  if (typeof highlights === 'number') return [];
+    if (!highlight.hasOwnProperty('phrases')) {
+      return false;
+    }
 
-  if (!Array.isArray(highlights)) {
-    if (typeof highlights === 'object') return [];
-    data = highlights.replace(/(\r\n|\n|\r)/gm, '').replace(/'|"/g, '');
-    data = parseStringData(data);
-  }
+    if (!Array.isArray(highlight.phrases)) {
+      return false;
+    }
 
-  if (!Array.isArray(data)) return [];
-
-  let workingHighlights = null;
-
-  if (!Array.isArray(highlights)) {
-    workingHighlights = data.slice();
-  } else {
-    workingHighlights = highlights.slice();
-  }
-
-  workingHighlights.sort((a, b) => a.startOffset - b.startOffset);
-  workingHighlights = workingHighlights.filter(
-    x => x.startOffset < x.endOffset
-  );
-
-  let i = 1;
-  while (i < workingHighlights.length) {
-    const prev = workingHighlights[i - 1];
-    const curr = workingHighlights[i];
-
-    const overlap = hasOverlap(prev, curr);
-
-    // need to split
-    if (overlap) {
-      if (secondIsInsideFirst(prev, curr)) {
-        // first covers 2nd - ignore 2nd completely
-        if (firstHasPriority(prev, curr)) {
-          workingHighlights.splice(i, 1);
-        }
-        // split longer into 2 parts
-        else {
-          const furtherEnd = prev.endOffset;
-          prev.endOffset = curr.startOffset;
-
-          const newBlock = { ...prev };
-          const currJoin = prev.join || '';
-          if (!currJoin.includes('join-right')) {
-            prev.join = currJoin + ' join-right ';
-          }
-          newBlock.startOffset = curr.endOffset;
-          newBlock.endOffset = furtherEnd;
-          const newJoin = newBlock.join || '';
-          if (!newJoin.includes('join-left')) {
-            newBlock.join = ' join-left ';
-          }
-
-          const newIndex = getIndex(newBlock.startOffset);
-          workingHighlights.splice(newIndex, 0, newBlock);
-        }
-      } else {
-        // shorten one
-        if (firstHasPriority(prev, curr)) {
-          // move current block ahead to keep arr sorted
-          const placeAtIndex = getIndex(prev.endOffset);
-
-          if (placeAtIndex !== i) {
-            workingHighlights.splice(placeAtIndex, 0, curr);
-            workingHighlights.splice(i, 1);
-          }
-
-          curr.startOffset = prev.endOffset;
-          const addClass = curr.join || '';
-          if (!addClass.includes('join-left')) {
-            curr.join = addClass + ' join-left ';
-          }
-        } else {
-          prev.endOffset = curr.startOffset;
-          const newClass = prev.join || '';
-          if (!newClass.includes('join-right')) {
-            prev.join = newClass + ' join-right ';
-          }
-        }
+    for (let phrase of highlight.phrases) {
+      if (typeof phrase !== 'string') {
+        return false;
       }
     }
-
-    // no overlap, do nothing
-    i++;
   }
 
-  const isInOrder = (el, index, arr) => {
-    const prev = arr[index - 1] || { startOffset: -1, endOffset: -1 };
-    return (
-      el.startOffset > prev.startOffset &&
-      el.endOffset > prev.endOffset &&
-      el.startOffset >= prev.endOffset
-    );
-  };
-
-  if (workingHighlights.every(isInOrder)) return workingHighlights;
-
-  return formatHighlights(workingHighlights);
+  return true;
 };
 
-export const createHighlightedElements = (highlights, text) => {
-  const arrayOfChildren = [];
+export const hideNeighboringPhrases = (highlights, hoveredIndex = null) => {
+  if (hoveredIndex === null) return hoveredIndex;
 
-  if (inputIsEmpty(highlights)) return <div>{text}</div>;
+  const hoveredBlock = highlights[hoveredIndex];
 
-  let textIndex = 0;
+  const neighbors = highlights.filter(
+    (block, index) => hasOverlap(block, hoveredBlock) && index !== hoveredIndex
+  );
 
-  highlights.forEach((item, index) => {
-    //copy words before first highlight || in between highlights
-    
-    if (index === 0 || item.startOffset > textIndex) {
-      const content = text.substring(textIndex, item.startOffset);
-      arrayOfChildren.push(
-        React.createElement(
-          DynamicContent,
-          { key: `key-${textIndex}-${item.priority}-${index}` },
-          content
-        )
-      );
-      textIndex = item.startOffset;
-    }
+  neighbors.forEach(block => (block.hide = true));
 
-    // highlighted word
-    const addedClass = item.join || '';
-    const className = 'highlight ' + addedClass;
-    const content = text.substring(item.startOffset, item.endOffset);
-
-    const styles = {
-      backgroundColor: item.color,
-      zIndex: 100 - item.priority
-    };
-
-    arrayOfChildren.push(
-      React.createElement(
-        'span',
-        {
-          className: className,
-          key: textIndex,
-          style: styles
-        },
-        content
-      )
-    );
-    textIndex = item.endOffset;
-
-    // copy words after last highlight
-    if (index === highlights.length - 1 && textIndex < text.length - 1) {
-      const content = text.substring(item.endOffset);
-      arrayOfChildren.push(
-        React.createElement(DynamicContent, { key: index + textIndex }, content)
-      );
-    }
-  });
-
-  return React.createElement(DynamicContent, {}, arrayOfChildren);
+  return neighbors;
 };
-*/
-//  ----------------------------------------------------------------------
-// new utils
-// -----------------------------------------------------------------------
+
+const addRoundBorders = (phrase, word, isHighlighted = false) => {
+  const active = isHighlighted ? '-active' : '';
+
+  if (word.start === phrase.start) {
+    const addClass = `${phrase.color}${active}-round-left`;
+    word.classes.push(addClass);
+  }
+
+  if (word.end === phrase.end) {
+    const addClass = `${phrase.color}${active}-round-right`;
+    word.classes.push(addClass);
+  }
+};
+
+export const setWordClasses = (
+  word,
+  highlight,
+  highlightIndex,
+  hoveredIndex = null
+) => {
+  const hasClassesArray = word.classes;
+  const hasHighlightIndex = word.highlightIndex;
+
+  if (!hasClassesArray) {
+    word.classes = [];
+  }
+
+  if (!hasHighlightIndex) {
+    word.highlightIndex = [];
+  }
+
+  word.classes.push(highlight.color);
+
+  if (highlight.classes) {
+    word.classes = word.classes.concat(highlight.classes);
+  }
+
+  if (highlight.hide) {
+    word.classes.push('transparent-background');
+  }
+
+  if (highlightIndex === hoveredIndex) {
+    word.classes.push(`${highlight.color}-active`);
+  }
+
+  word.highlightIndex.push(highlightIndex);
+};
+
+/* ----------------------------
+Main parsing and creating DOM 
+--------------------------- */
 
 export const createWords = string => {
   const validWords = [];
-
   const pattern = /\w+[-]*\w*|[.,?!;:'"()]+/gi;
-
   let matched = '';
-  while ((matched = pattern.exec(string)) !== null) {
-    //  This is necessary to avoid infinite loops with zero-width matches
-    /*if (m.index === regex.lastIndex) {
-      regex.lastIndex++;
-    }*/
 
+  while ((matched = pattern.exec(string)) !== null) {
     validWords.push({
       word: matched[0],
       start: matched.index,
@@ -226,55 +136,16 @@ export const createWords = string => {
   return validWords;
 };
 
-const addJoiningClassesToHighlights = highlights => {
-  highlights.forEach((highlight, highlightIndex) => {
-    if (highlightIndex > 0) {
-      // const prevHighlight = highlights[highlightIndex - 1];
-      // if (hasOverlap(highlight, prevHighlight)) {
-      //   if (secondIsInsideFirst(prevHighlight, highlight)) {
-      //     if (!firstHasPriority(prevHighlight, highlight)) {
-      //       console.log(
-      //         prevHighlight.phrase +
-      //           ' ' +
-      //           highlight.phrase +
-      //           ' => first needs a left join'
-      //       );
-      //     }
-      //   } else {
-      //     if (firstHasPriority(prevHighlight, highlight)) {
-      //       console.log(
-      //         prevHighlight.phrase +
-      //           ' ' +
-      //           highlight.phrase +
-      //           ' => second needs a right join'
-      //       );
-      //     } else {
-      //       console.log(
-      //         prevHighlight.phrase +
-      //           ' ' +
-      //           highlight.phrase +
-      //           ' => first needs a left join'
-      //       );
-      //     }
-      //   }
-      // }
-    }
-  });
-
-  return highlights;
-};
-
-export const createHighlights = (words, highlights) => {
+export const createHighlights = (words, highlights, hoveredIndex = null) => {
   const resultHighlights = [];
 
   highlights.forEach((highlight, highlightIndex) => {
-    const color = highlight.color || 'none';
-
     highlight.phrases.forEach((phrase, phraseIndex) => {
       const pattern = `\\b${phrase}\\b`;
       const regex = new RegExp(pattern, 'gi');
 
       let found = regex.exec(words);
+      const color = highlight.color;
 
       while (found !== null) {
         resultHighlights.push({
@@ -292,23 +163,13 @@ export const createHighlights = (words, highlights) => {
 
   resultHighlights.sort((a, b) => a.start - b.start);
 
-  return addJoiningClassesToHighlights(resultHighlights);
+  // possibly hide neighboring phrases
+  if (hoveredIndex !== null) {
+    hideNeighboringPhrases(resultHighlights, hoveredIndex);
+  }
+
+  return resultHighlights;
 };
-
-const hasOverlap = (block1, block2) => {
-  const start = Math.max(block1.start, block2.start);
-  const end = Math.min(block1.end, block2.end);
-
-  return start < end;
-};
-
-const firstHasPriority = (first, second) => first.priority < second.priority;
-
-const secondIsInsideFirst = (first, second) =>
-  second.start >= first.start && second.end <= first.end;
-
-const wordIsIncludedInPhrase = (highlight, word) =>
-  highlight.start <= word.start && highlight.end >= word.end;
 
 export const addClassesToWords = (words, highlights, hoveredIndex = null) => {
   const wordsWithClasses = JSON.parse(JSON.stringify(words));
@@ -316,25 +177,13 @@ export const addClassesToWords = (words, highlights, hoveredIndex = null) => {
   highlights.forEach((highlight, highlightIndex) => {
     wordsWithClasses.forEach((word, wordIndex) => {
       if (wordIsIncludedInPhrase(highlight, word)) {
-        const hasClassesArray = word.classes;
-        const hasHighlightIndex = word.highlightIndex;
+        setWordClasses(word, highlight, highlightIndex, hoveredIndex);
+        addRoundBorders(highlight, word);
 
-        if (!hasClassesArray) {
-          word.classes = [];
+        // rewrite round borders for highlighted phrase
+        if (hoveredIndex !== null) {
+          addRoundBorders(highlights[hoveredIndex], word, true);
         }
-
-        if (!hasHighlightIndex) {
-          word.highlightIndex = [];
-        }
-
-        //  really color ?
-        word.classes.push(highlight.color);
-
-        if (highlightIndex === hoveredIndex) {
-          word.classes.push('highlight-active');
-        }
-
-        word.highlightIndex.push(highlightIndex);
       }
     });
   });
@@ -345,27 +194,30 @@ export const addClassesToWords = (words, highlights, hoveredIndex = null) => {
 export const createRenderableDom = (content, onMouseHover, onMouseOut) => {
   if (!Array.isArray(content)) return <span>nothing to display</span>;
 
-  const spanArray = [];
-  content.forEach(item => {
-    if (!item.classes) {
-      spanArray.push(<span key={item.start}>{item.word} </span>);
-    } else {
-      const names = item.classes.join(' ');
-      const dataLabel = item.highlightIndex.join(' ');
+  const elementArray = [];
 
-      spanArray.push(
+  content.forEach(word => {
+    if (!word.classes) {
+      elementArray.push(
+        <React.Fragment key={word.start}>{word.word} </React.Fragment>
+      );
+    } else {
+      const classNames = word.classes.join(' ');
+      const dataLabel = word.highlightIndex.join(' ');
+
+      elementArray.push(
         <span
-          key={item.start}
-          className={'highlight ' + names}
+          key={word.start}
+          className={'highlight ' + classNames}
           datahighlightindex={dataLabel}
           onMouseOver={onMouseHover}
           onMouseOut={onMouseOut}
         >
-          {item.word}{' '}
+          {word.word + ' '}
         </span>
       );
     }
   });
 
-  return spanArray;
+  return elementArray;
 };
