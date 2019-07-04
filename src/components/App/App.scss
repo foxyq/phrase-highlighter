@@ -72,10 +72,10 @@ input[type='button'] {
   margin-left: -3px;
 }
 
-#content .transparent-background {
-  background-color: transparent;
-  border-radius: 0;
-}
+// #content .transparent-background {
+//   background-color: transparent;
+//   border-radius: 0;
+// }
 
 $colors: (
   'grey': #e8e8e8,
@@ -94,6 +94,11 @@ $zIndex: 0;
     background-color: $code;
     z-index: $zIndex;
 
+    &-transparent-background {
+      background-color: transparent;
+      border-radius: 0;
+    }
+
     &-round-right {
       border-bottom-right-radius: 5px;
       border-top-right-radius: 5px;
@@ -106,6 +111,10 @@ $zIndex: 0;
       border-top-left-radius: 5px;
       -webkit-box-shadow: 0 0 0 1px #fff;
       box-shadow: 0 0 0 1px #fff;
+    }
+
+    &-hide {
+      background: transparent;
     }
   }
 }

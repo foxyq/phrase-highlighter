@@ -36,21 +36,7 @@ const initState = {
       ]
     }
   ],
-  highlightedIndex: null,
-  toDisplay: ''
+  highlightedIndex: null
 };
-/*
-const initState2 = {
-  text: 'We expect our candidates to be action-oriented, an adorable puppy',
-  highlights: [
-    { color: 'orange', phrases: ['be action-oriented'] },
-    { color: 'green', phrases: ['to be'] },
-    { color: 'blue', phrases: ['candidates to be action-oriented'] },
-    {
-      color: 'purple',
-      phrases: ['expect our candidates to be action-oriented']
-    }
-  ]
-};
-*/
+
 export default initState;

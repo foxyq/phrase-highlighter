@@ -101,12 +101,12 @@ export const setWordClasses = (
 
   word.classes.push(highlight.color);
 
-  if (highlight.classes) {
-    word.classes = word.classes.concat(highlight.classes);
-  }
+  // if (highlight.classes) {
+  //   word.classes = word.classes.concat(highlight.classes);
+  // }
 
   if (highlight.hide) {
-    word.classes.push('transparent-background');
+    word.classes.push(`${highlight.color}-transparent-background`);
   }
 
   if (highlightIndex === hoveredIndex) {

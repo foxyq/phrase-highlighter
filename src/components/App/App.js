@@ -18,39 +18,51 @@ class App extends Component {
     this.state = initState;
   }
 
-  componentDidMount = () => {
-    const text = this.state.text;
-    const highlights = this.state.highlights;
-
-    this.parseInputAndSetState(text, highlights);
-  };
-
   onMouseHover = e => {
+    const { text, highlights, highlightedIndex } = this.state;
+
     const dataIndex = String(e.target.getAttribute('datahighlightindex'));
     const highlightIndices = dataIndex.split(' ');
 
-    const parsedHighlights = this.state.parsedHighlights;
+    const parsedHighlights = createHighlights(
+      text,
+      highlights,
+      highlightedIndex
+    );
 
     const toHighlight = parsedHighlights
       .map((x, i) => ({ ...x, index: i }))
       .filter(x => highlightIndices.includes(String(x.index)))
       .reduce((acc, next) => (acc.priority < next.priority ? acc : next));
 
-    const { text, highlights } = this.state;
-    this.parseInputAndSetState(text, highlights, toHighlight.index);
+    this.setState({ highlightedIndex: toHighlight.index });
   };
 
   onMouseOut = () => {
-    const { text, highlights } = this.state;
-    this.parseInputAndSetState(text, highlights);
+    this.setState({ highlightedIndex: null });
   };
 
-  parseInputAndSetState = (newText, newHighlights, highlightedIndex = null) => {
-    const parsedWords = createWords(newText);
+  onTextChange = e => {
+    const text = e.target.value;
+    this.setState({ text });
+  };
+
+  onHighlightsChange = e => {
+    const highlights = arrayFromHighlightsInput(e.target.value);
+
+    if (isHighlightsInputValid(highlights)) {
+      this.setState({ highlights });
+    }
+  };
+
+  render() {
+    const { text, highlights, highlightedIndex } = this.state;
+
+    const parsedWords = createWords(text);
 
     const parsedHighlights = createHighlights(
-      newText,
-      newHighlights,
+      text,
+      highlights,
       highlightedIndex
     );
 
@@ -60,35 +72,12 @@ class App extends Component {
       highlightedIndex
     );
 
-    const dom = createRenderableDom(
+    const domElements = createRenderableDom(
       wordsWithClasses,
       this.onMouseHover,
       this.onMouseOut
     );
 
-    this.setState({
-      text: newText,
-      highlights: newHighlights,
-      highlightedIndex,
-      parsedHighlights,
-      toDisplay: dom
-    });
-  };
-
-  onTextChange = e => {
-    const text = e.target.value;
-    this.parseInputAndSetState(text, this.state.highlights);
-  };
-
-  onHighlightsChange = e => {
-    const highlights = arrayFromHighlightsInput(e.target.value);
-
-    if (isHighlightsInputValid(highlights)) {
-      this.parseInputAndSetState(this.state.text, highlights);
-    }
-  };
-
-  render() {
     return (
       <div>
         <div className='overlay' />
@@ -102,7 +91,7 @@ class App extends Component {
             />
           </section>
           <section id='content'>
-            <>{this.state.toDisplay}</>
+            <>{domElements}</>
           </section>
         </div>
       </div>
